@@ -1,0 +1,25 @@
+aws_region  = "us-east-1"
+aws_profile = "demo"
+vpc_cidr    = "10.1.0.0/16"
+vpc_name    = "demo-vpc"
+
+# Public subnets in 3 different AZs
+public_subnet_cidrs = [
+  "10.1.1.0/24",
+  "10.1.2.0/24",
+  "10.1.3.0/24"
+]
+
+# Private subnets in 3 different AZs
+private_subnet_cidrs = [
+  "10.1.11.0/24",
+  "10.1.12.0/24",
+  "10.1.13.0/24"
+]
+
+# Availability zones
+availability_zones = [
+  "us-east-1a",
+  "us-east-1b",
+  "us-east-1c"
+]
