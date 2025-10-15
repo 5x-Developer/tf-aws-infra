@@ -1,4 +1,4 @@
-# AWS Infrastructure as Code with Terraform
+# AWS Infrastructure as Code with Terraform testing
 
 This repository contains Terraform configurations for AWS networking infrastructure.
 
