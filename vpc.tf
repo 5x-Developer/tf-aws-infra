@@ -1,3 +1,12 @@
+# Data source to get available AZs in the current region
+data "aws_availability_zones" "available" {
+  state = "available"
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
 # Create VPC
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
@@ -18,28 +27,32 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-# Create Public Subnets
+# Create Public Subnets (dynamically calculated CIDRs)
 resource "aws_subnet" "public" {
-  count                   = length(var.public_subnet_cidrs)
+  count = var.public_subnet_count
+
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidrs[count.index]
-  availability_zone       = var.availability_zones[count.index]
+  cidr_block              = cidrsubnet(var.vpc_cidr, var.public_subnet_cidr_bits, count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
   map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.vpc_name}-public-subnet-${count.index + 1}"
+    Type = "Public"
   }
 }
 
-# Create Private Subnets
+# Create Private Subnets (dynamically calculated CIDRs with offset)
 resource "aws_subnet" "private" {
-  count             = length(var.private_subnet_cidrs)
+  count = var.private_subnet_count
+
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidrs[count.index]
-  availability_zone = var.availability_zones[count.index]
+  cidr_block        = cidrsubnet(var.vpc_cidr, var.private_subnet_cidr_bits, count.index + var.private_subnet_offset)
+  availability_zone = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
 
   tags = {
     Name = "${var.vpc_name}-private-subnet-${count.index + 1}"
+    Type = "Private"
   }
 }
 
@@ -70,14 +83,16 @@ resource "aws_route" "public_internet_gateway" {
 
 # Associate Public Subnets with Public Route Table
 resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.public)
+  count = var.public_subnet_count
+
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
 # Associate Private Subnets with Private Route Table
 resource "aws_route_table_association" "private" {
-  count          = length(aws_subnet.private)
+  count = var.private_subnet_count
+
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
