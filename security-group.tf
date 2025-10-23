@@ -53,3 +53,29 @@ resource "aws_security_group" "application" {
     Name = "${var.vpc_name}-application-sg"
   }
 }
+
+resource "aws_security_group" "database" {
+  name        = "${var.vpc_name}-database-sg"
+  description = "Security group fo DB instances"
+  vpc_id      = aws_vpc.main.id
+  # MySql port
+  ingress {
+    description     = "MySQL from application"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.application.id]
+  }
+  #outbound rules
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "${var.vpc_name}-database-sg"
+  }
+
+}

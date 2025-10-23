@@ -6,18 +6,19 @@
 set -e
 
 echo "=========================================="
-echo "EC2 Instance Initialization"
+echo "EC2 Instance Initialization" - "RDS Configuration"
 echo "=========================================="
 
 # Database Configuration
+DB_ENDPOINT="${db_endpoint}"
 DB_NAME="${db_name}"
 DB_USER="${db_user}"
 DB_PASSWORD="${db_password}"
 
 # Create .env file with application secrets
-echo "Creating environment configuration..."
+echo "Creating environment configuration for RDS..."
 cat > /opt/csye6225/.env << EOF
-SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/$${DB_NAME}
+SPRING_DATASOURCE_URL=jdbc:mysql://$${DB_ENDPOINT}:3306/$${DB_NAME}
 SPRING_DATASOURCE_USERNAME=$${DB_USER}
 SPRING_DATASOURCE_PASSWORD=$${DB_PASSWORD}
 SERVER_PORT=8080
@@ -31,30 +32,21 @@ EOF
 sudo chown csye6225:csye6225 /opt/csye6225/.env
 sudo chmod 600 /opt/csye6225/.env
 
-# Configure MySQL database
-echo "Configuring MySQL database..."
-sudo mysql -u root -ptemporary_password << MYSQL_EOF
-ALTER USER 'root'@'localhost' IDENTIFIED BY '$${DB_PASSWORD}';
-CREATE DATABASE IF NOT EXISTS $${DB_NAME};
-CREATE USER IF NOT EXISTS '$${DB_USER}'@'localhost' IDENTIFIED BY '$${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON $${DB_NAME}.* TO '$${DB_USER}'@'localhost';
-FLUSH PRIVILEGES;
-MYSQL_EOF
+echo "Environment file created with RDS connection details"
 
-# Wait for database to be ready
-sleep 5
+# Restart the application service to pick up new configuration
+echo "Restarting application service..."
+systemctl restart csye6225.service
 
-# Start the application
-echo "Starting application service..."
-sudo systemctl start csye6225.service
+# Wait a bit for service to start
+sleep 10
 
 # Check if application started successfully
-sleep 10
-if sudo systemctl is-active --quiet csye6225.service; then
-    echo "Application started successfully!"
+if systemctl is-active --quiet csye6225.service; then
+    echo "Application started successfully and connected to RDS!"
 else
     echo "Application failed to start!"
-    sudo journalctl -u csye6225.service -n 50
+    journalctl -u csye6225.service -n 50
     exit 1
 fi
 

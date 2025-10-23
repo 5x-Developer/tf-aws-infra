@@ -1,3 +1,20 @@
+# data "aws_ami" "amazon_linux" {
+#   most_recent = true
+#   owners      = ["amazon"]
+
+#   filter {
+#     name   = "name"
+#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+#   }
+
+#   filter {
+#     name   = "architecture"
+#     values = ["x86_64"]
+#   }
+# }
+# data.aws_ami.amazon_linux.id
+#ar.ami_id 
+
 # EC2 Instance for Web Application
 resource "aws_instance" "web_app" {
   ami                    = var.ami_id
@@ -18,6 +35,7 @@ resource "aws_instance" "web_app" {
 
   # User data script to configure application on first boot
   user_data = templatefile("${path.module}/user-data.sh", {
+    db_endpoint = aws_db_instance.MySQL_DB.address
     db_name     = var.db_name
     db_user     = var.db_user
     db_password = var.db_password
