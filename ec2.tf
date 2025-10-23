@@ -22,6 +22,8 @@ resource "aws_instance" "web_app" {
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.application.id]
   key_name               = var.key_name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
+
 
   # Root volume configuration
   root_block_device {
@@ -35,10 +37,11 @@ resource "aws_instance" "web_app" {
 
   # User data script to configure application on first boot
   user_data = templatefile("${path.module}/user-data.sh", {
-    db_endpoint = aws_db_instance.MySQL_DB.address
-    db_name     = var.db_name
-    db_user     = var.db_user
-    db_password = var.db_password
+    db_endpoint    = aws_db_instance.MySQL_DB.address
+    db_name        = var.db_name
+    db_user        = var.db_user
+    db_password    = var.db_password
+    s3_bucket_name = aws_s3_bucket.bucket.bucket
   })
 
   tags = {
