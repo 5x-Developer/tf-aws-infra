@@ -53,3 +53,5 @@ terraform.tfstate*
 *.tfstate
 *.tfstate.*
 .terraform/
+
+*.pem
