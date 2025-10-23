@@ -14,6 +14,7 @@ DB_ENDPOINT="${db_endpoint}"
 DB_NAME="${db_name}"
 DB_USER="${db_user}"
 DB_PASSWORD="${db_password}"
+S3_BUCKET_NAME="${s3_bucket_name}"
 
 # Create .env file with application secrets
 echo "Creating environment configuration for RDS..."
@@ -26,6 +27,7 @@ SPRING_JPA_HIBERNATE_DDL_AUTO=update
 SPRING_JPA_SHOW_SQL=false
 LOGGING_LEVEL_ROOT=INFO
 LOGGING_FILE_NAME=/opt/csye6225/logs/application.log
+AWS_S3_BUCKET_NAME=$${S3_BUCKET_NAME}
 EOF
 
 # Set proper permissions
