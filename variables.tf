@@ -94,3 +94,14 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+# variable "domain_name" {
+#   description = "Domain name for the application (e.g., dev.aditya-y.me or demo.aditya-y.me)"
+#   type        = string
+# }
+
+# variable "dns_ttl" {
+#   description = "TTL for DNS records in seconds"
+#   type        = number
+#   default     = 300
+# }

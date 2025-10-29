@@ -74,3 +74,21 @@ output "security_group_id" {
   description = "ID of the application security group"
   value       = aws_security_group.application.id
 }
+
+# output "ec2_public_ip" {
+#   description = "Public IP address of the EC2 instance"
+#   value       = aws_instance.web_app.public_ip
+# }
+
+# # Output the domain name
+# output "application_domain" {
+#   description = "Domain name for accessing the application"
+#   value       = aws_route53_record.app.name
+# }
+
+
+# # Output the Route 53 zone ID (useful for debugging)
+# output "route53_zone_id" {
+#   description = "Route 53 hosted zone ID"
+#   value       = data.aws_route53_zone.main.zone_id
+# }

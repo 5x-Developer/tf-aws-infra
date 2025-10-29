@@ -42,6 +42,8 @@ resource "aws_instance" "web_app" {
     db_user        = var.db_user
     db_password    = var.db_password
     s3_bucket_name = aws_s3_bucket.bucket.bucket
+    aws_region     = var.aws_region
+    log_group_name = "/aws/ec2/${var.vpc_name}-logs"
   })
 
   tags = {
