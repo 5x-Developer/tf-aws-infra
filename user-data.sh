@@ -40,19 +40,23 @@ sudo chmod 600 /opt/csye6225/.env
 echo "Environment file created with RDS connection details"
 
 
-# Get instance ID from metadata (MUST query at runtime)
+
+# Install and Configure CloudWatch Agent
+echo "Installing and configuring CloudWatch Agent..."
+
 INSTANCE_ID=$(ec2-metadata --instance-id | cut -d " " -f 2)
-# Region from Terraform (already have it!)
+REGION="${aws_region}"
+
 echo "Instance ID: $INSTANCE_ID"
 echo "Region: $REGION"
 
-# Create CloudWatch Agent configuration
-cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'EOF'
+# Create CloudWatch Agent configuration with proper variable escaping
+sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null <<EOF
 {
   "agent": {
     "metrics_collection_interval": 60,
-    "run_as_user": "root",
-    "region": "${aws_region}"
+    "run_as_user": "cwagent",
+    "region": "$REGION"
   },
   "logs": {
     "logs_collected": {
@@ -91,9 +95,7 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'EOF'
           }
         ],
         "metrics_collection_interval": 60,
-        "resources": [
-          "*"
-        ]
+        "resources": ["*"]
       },
       "statsd": {
         "service_address": ":8125",
@@ -122,10 +124,13 @@ if sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   echo "✓ CloudWatch Agent started successfully"
 else
   echo "✗ CloudWatch Agent failed to start"
-  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-    -a status -m ec2 -c default  
+  echo "Agent status:"
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status -m ec2 -c default
+  echo "Recent agent logs:"
+  sudo tail -50 /opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log
   exit 1
 fi
+
 
 # Restart the application service to pick up new configuration
 echo "Restarting application service..."

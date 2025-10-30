@@ -69,8 +69,15 @@ resource "aws_iam_role_policy" "cloudwatch_policy" {
           "logs:DescribeLogGroups"
         ]
         Resource = "arn:aws:logs:${var.aws_region}:*:log-group:/aws/ec2/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes"
+        ]
+        Resource = "*"
       }
-
     ]
   })
 }
