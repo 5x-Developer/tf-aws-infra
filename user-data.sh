@@ -118,10 +118,12 @@ sleep 5
 
 # Verify agent started
 if sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-  -a query -m ec2 -c default | grep -q "running"; then
+  -a status -m ec2 -c default | grep -q "running"; then
   echo "✓ CloudWatch Agent started successfully"
 else
   echo "✗ CloudWatch Agent failed to start"
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a status -m ec2 -c default  
   exit 1
 fi
 

@@ -65,7 +65,8 @@ resource "aws_iam_role_policy" "cloudwatch_policy" {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "logs:DescribeLogStreams"
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups"
         ]
         Resource = "arn:aws:logs:${var.aws_region}:*:log-group:/aws/ec2/*"
       }
