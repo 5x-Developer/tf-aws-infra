@@ -55,40 +55,66 @@ output "default_subnet_id" {
 }
 
 # EC2 Instance outputs
-output "instance_id" {
-  description = "ID of the EC2 instance"
-  value       = aws_instance.web_app.id
-}
+# output "instance_id" {
+#   description = "ID of the EC2 instance"
+#   value       = aws_instance.web_app.id
+# }
 
-output "instance_public_ip" {
-  description = "Public IP of the EC2 instance"
-  value       = aws_instance.web_app.public_ip
-}
+# output "instance_public_ip" {
+#   description = "Public IP of the EC2 instance"
+#   value       = aws_instance.web_app.public_ip
+# }
 
-output "application_url" {
-  description = "URL to access the application"
-  value       = "http://${aws_instance.web_app.public_ip}:8080"
-}
+# output "application_url" {
+#   description = "URL to access the application"
+#   value       = "http://${aws_instance.web_app.public_ip}:8080"
+# }
 
-output "security_group_id" {
-  description = "ID of the application security group"
-  value       = aws_security_group.application.id
-}
+# output "security_group_id" {
+#   description = "ID of the application security group"
+#   value       = aws_security_group.application.id
+# }
 
 # output "ec2_public_ip" {
 #   description = "Public IP address of the EC2 instance"
 #   value       = aws_instance.web_app.public_ip
 # }
 
-# # Output the domain name
-# output "application_domain" {
-#   description = "Domain name for accessing the application"
-#   value       = aws_route53_record.app.name
-# }
+# Output the domain name
+output "application_domain" {
+  description = "Domain name for accessing the application"
+  value       = aws_route53_record.app.name
+}
 
 
-# # Output the Route 53 zone ID (useful for debugging)
-# output "route53_zone_id" {
-#   description = "Route 53 hosted zone ID"
-#   value       = data.aws_route53_zone.main.zone_id
-# }
+# Output the Route 53 zone ID (useful for debugging)
+output "route53_zone_id" {
+  description = "Route 53 hosted zone ID"
+  value       = data.aws_route53_zone.main.zone_id
+}
+
+# Load Balancer outputs
+output "load_balancer_dns" {
+  description = "DNS name of the load balancer"
+  value       = aws_lb.application_load_balancer.dns_name
+}
+
+output "load_balancer_arn" {
+  description = "ARN of the load balancer"
+  value       = aws_lb.application_load_balancer.arn
+}
+
+output "target_group_arn" {
+  description = "ARN of the target group"
+  value       = aws_lb_target_group.lb_tg.arn
+}
+
+output "autoscaling_group_name" {
+  description = "Name of the Auto Scaling Group"
+  value       = aws_autoscaling_group.app.name
+}
+
+output "application_url" {
+  description = "URL to access the application"
+  value       = "http://${var.domain_name}"
+}
