@@ -105,3 +105,36 @@ variable "dns_ttl" {
   type        = number
   default     = 300
 }
+
+variable "email_api_key" {
+  description = "API key for email service (e.g., SendGrid, Mailgun, SES)"
+  type        = string
+  sensitive   = true
+  default     = "placeholder-update-after-creation"
+}
+
+variable "email_service_name" {
+  description = "Email service provider name"
+  type        = string
+  default     = "sendgrid" # or "ses", "mailgun", etc.
+}
+
+variable "email_from_address" {
+  description = "From email address for verification emails"
+  type        = string
+}
+
+# Lambda Configuration
+variable "lambda_zip_path" {
+  description = "Path to Lambda function zip file"
+  type        = string
+  default     = "lambda_function.zip"
+}
+
+# Demo Account ID for AMI sharing (needed for CI/CD)
+variable "demo_account_id" {
+  description = "AWS Account ID for Demo environment"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

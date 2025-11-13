@@ -16,6 +16,7 @@ resource "aws_launch_template" "app" {
     delete_on_termination       = true
   }
 
+  # Added KMS encryption for EBS volumes
   block_device_mappings {
     device_name = "/dev/sda1"
 
@@ -23,17 +24,19 @@ resource "aws_launch_template" "app" {
       volume_size           = 25
       volume_type           = "gp2"
       delete_on_termination = true
+      # encrypted             = true
+      # kms_key_id            = aws_kms_key.ec2_key.arn
     }
   }
 
+  #   user_data template variables
   user_data = base64encode(templatefile("${path.module}/user-data.sh", {
-    db_endpoint    = aws_db_instance.MySQL_DB.address
-    db_name        = var.db_name
-    db_user        = var.db_user
-    db_password    = var.db_password
+    db_secret_arn  = aws_secretsmanager_secret.rds_credentials.arn
     s3_bucket_name = aws_s3_bucket.bucket.bucket
     aws_region     = var.aws_region
     log_group_name = "/aws/ec2/${var.vpc_name}-logs"
+    sns_topic_arn  = aws_sns_topic.user_verification.arn
+    domain_name    = var.domain_name
   }))
 
   tag_specifications {
@@ -79,6 +82,15 @@ resource "aws_autoscaling_group" "app" {
     value               = "${var.vpc_name}-asg-instance"
     propagate_at_launch = true
   }
+
+  # Instance refresh configuration for CI/CD deployments
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+      instance_warmup        = 300
+    }
+  }
 }
 
 # Scale Up Policy - Add 1 instance
@@ -108,7 +120,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   namespace           = "AWS/EC2"
   period              = 60
   statistic           = "Average"
-  threshold           = 20
+  threshold           = 65
   alarm_description   = "This metric monitors high CPU utilization"
   alarm_actions       = [aws_autoscaling_policy.scale_up.arn]
 

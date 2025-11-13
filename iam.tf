@@ -1,7 +1,6 @@
 # 1. IAM Role
 resource "aws_iam_role" "s3_role" {
   name = "${var.vpc_name}-s3-access-role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -16,11 +15,10 @@ resource "aws_iam_role" "s3_role" {
   })
 }
 
-# 2. IAM Policy (inline)
+# 2. IAM Policy - S3 Access (inline)
 resource "aws_iam_role_policy" "s3_access_policy" {
   name = "${var.vpc_name}-s3-access-policy"
   role = aws_iam_role.s3_role.id
-
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -44,11 +42,10 @@ resource "aws_iam_role_policy" "s3_access_policy" {
   })
 }
 
-# 3. Cloudwatch policy
+# 3. IAM Policy - CloudWatch (inline)
 resource "aws_iam_role_policy" "cloudwatch_policy" {
   name = "${var.vpc_name}-cloudwatch-policy"
   role = aws_iam_role.s3_role.id
-
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -81,7 +78,53 @@ resource "aws_iam_role_policy" "cloudwatch_policy" {
     ]
   })
 }
-# 3. Instance Profile
+
+# 4. IAM Policy - SNS Publish (NEW - inline)
+resource "aws_iam_role_policy" "sns_publish_policy" {
+  name = "${var.vpc_name}-sns-publish-policy"
+  role = aws_iam_role.s3_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = aws_sns_topic.user_verification.arn
+      }
+    ]
+  })
+}
+
+# 5. IAM Policy - Secrets Manager Access (NEW - inline)
+resource "aws_iam_role_policy" "secrets_manager_policy" {
+  name = "${var.vpc_name}-secrets-manager-policy"
+  role = aws_iam_role.s3_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.rds_credentials.arn
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = aws_kms_key.secrets_key.arn
+      }
+    ]
+  })
+}
+
+# 6. Instance Profile
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.vpc_name}-ec2-profile"
   role = aws_iam_role.s3_role.name
