@@ -5,6 +5,11 @@ Terraform configuration for provisioning the complete AWS infrastructure behind 
 Built as part of **CSYE 6225 — Network Structures & Cloud Computing** at Northeastern University.
 
 ---
+## Related Repositories
+
+- **[Serverless](https://github.com/5x-Developer/serverless)** — Lambda function for email verification (deployed via CI/CD)
+
+---
 
 ## Architecture
 
@@ -226,12 +231,6 @@ On first boot, each EC2 instance:
 
 ---
 
-## Related Repositories
-
-- **[Web Application](https://github.com/your-org/Web_app)** — Spring Boot REST API (builds the custom AMI via Packer)
-- **[Serverless](https://github.com/your-org/serverless)** — Lambda function for email verification (deployed via CI/CD)
-
----
 
 ## License
 
